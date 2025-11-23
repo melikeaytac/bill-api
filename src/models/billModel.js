@@ -57,52 +57,40 @@ async function getUnpaidBills(subscriberNo) {
 }
 
 async function payBill(subscriberNo, month, amount) {
-  const client = await db.query("BEGIN");
-  try {
-    const billRes = await db.query(
-      `
-      SELECT b.id, b.total_amount, b.paid_amount
-      FROM bills b
-      JOIN subscribers s ON s.id = b.subscriber_id
-      WHERE s.subscriber_no = $1 AND b.month = $2
-      FOR UPDATE
-      `,
-      [subscriberNo, month]
-    );
+  const result = await db.query(
+    `
+    UPDATE bills b
+    SET paid_amount = LEAST(total_amount, paid_amount + $3)
+    WHERE b.subscriber_id = (
+      SELECT id FROM subscribers WHERE subscriber_no = $1
+    )
+      AND b.month = $2
+    RETURNING 
+      total_amount,
+      paid_amount
+    `,
+    [subscriberNo, month, amount]
+  );
 
-    if (billRes.rowCount === 0) {
-      await db.query("ROLLBACK");
-      return { status: "NOT_FOUND" };
-    }
-
-    const bill = billRes.rows[0];
-    const newPaid = bill.paid_amount + amount;
-
-    await db.query(
-      `
-      UPDATE bills
-      SET paid_amount = $1
-      WHERE id = $2
-      `,
-      [newPaid, bill.id]
-    );
-
-    await db.query("COMMIT");
-
-    const isPaid = newPaid >= bill.total_amount;
-
-    return {
-      status: "SUCCESS",
-      isPaid,
-      total: bill.total_amount,
-      paidAmount: newPaid,
-      remaining: Math.max(bill.total_amount - newPaid, 0),
-    };
-  } catch (err) {
-    await db.query("ROLLBACK");
-    throw err;
+  if (result.rowCount === 0) {
+    return { status: "NOT_FOUND" };
   }
+
+  const row = result.rows[0];
+
+  const totalNum = Number(row.total_amount);
+  const paidNum = Number(row.paid_amount);
+  const remainingNum = totalNum - paidNum;
+
+  return {
+    status: "OK",
+    isPaid: remainingNum === 0,
+    total: totalNum.toFixed(2),
+    paidAmount: paidNum.toFixed(2),
+    remaining: remainingNum.toFixed(2),
+  };
 }
+
 
 async function getOrCreateSubscriber(subscriberNo) {
   const existing = await db.query(
