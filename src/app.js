@@ -10,11 +10,16 @@ const adminRoutes = require("./routes/admin");
 const authRoutes = require("./routes/auth");
 const errorHandler = require("./middleware/errorHandler");
 const logger = require("./middleware/logger");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("../openapi.json");
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(logger);
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Health check
 app.get("/health", (req, res) => {

@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 
-// Basit sabit kullanıcılar: midterm için yeterli
 const USERS = [
   { username: "mobile-app", password: "mobile123", role: "mobile" },
   { username: "bank-app", password: "bank123", role: "bank" },

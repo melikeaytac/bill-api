@@ -1,0 +1,300 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bill API",
+    "version": "1.0.0",
+    "description": "SE4458 Midterm - Billing API"
+  },
+  "servers": [
+    {
+      "url": "https://bill-api-app-12345.azurewebsites.net",
+      "description": "App Service (direct)"
+    }
+    ,
+    {
+      "url": "https://bill-api-gateway-dev.azure-api.net",
+      "description": "API Management Gateway"
+    }
+    
+  ],
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Login and get JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": { "type": "string" },
+                    "tokenType": { "type": "string" },
+                    "expiresIn": { "type": "integer" },
+                    "role": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/api/v1/mobile/bill": {
+      "get": {
+        "summary": "Get bill summary for a subscriber and month",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "subscriberNo",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "2024-10" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": { "type": "string" },
+                    "paidStatus": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Bill not found" }
+        }
+      }
+    },
+    "/api/v1/mobile/bill/detailed": {
+      "get": {
+        "summary": "Get detailed bill for a subscriber and month",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "subscriberNo",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "2024-10" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detailed bill items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": { "type": "string" },
+                    "page": { "type": "integer" },
+                    "size": { "type": "integer" },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": { "type": "string" },
+                          "amount": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/bank/bill": {
+      "get": {
+        "summary": "Get unpaid bills for a subscriber (Bank app)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "subscriberNo",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of unpaid bills",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "month": { "type": "string" },
+                      "total_amount": { "type": "string" },
+                      "paid_amount": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/web/pay": {
+      "post": {
+        "summary": "Pay bill from Web site (no auth)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subscriberNo": { "type": "string" },
+                  "month": { "type": "string" },
+                  "amount": { "type": "number" }
+                },
+                "required": ["subscriberNo", "month", "amount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "isPaid": { "type": "boolean" },
+                    "total": { "type": "number" },
+                    "paidAmount": { "type": "number" },
+                    "remaining": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/bill": {
+      "post": {
+        "summary": "Add single bill",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subscriberNo": { "type": "string" },
+                  "month": { "type": "string" },
+                  "totalAmount": { "type": "number" },
+                  "paidAmount": { "type": "number" }
+                },
+                "required": ["subscriberNo", "month", "totalAmount"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Bill created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/v1/admin/bill/batch": {
+      "post": {
+        "summary": "Add multiple bills in batch",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "subscriberNo": { "type": "string" },
+                    "month": { "type": "string" },
+                    "totalAmount": { "type": "number" },
+                    "paidAmount": { "type": "number" }
+                  },
+                  "required": ["subscriberNo", "month", "totalAmount"]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Bills created" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
