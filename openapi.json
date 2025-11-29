@@ -7,15 +7,17 @@
   },
   "servers": [
     {
+      "url": "http://localhost:3000",
+      "description": "Local"
+    },
+    {
       "url": "https://bill-api-app-12345.azurewebsites.net",
       "description": "App Service (direct)"
-    }
-    ,
+    },
     {
       "url": "https://bill-api-gateway-dev.azure-api.net",
       "description": "API Management Gateway"
     }
-    
   ],
   "paths": {
     "/api/v1/auth/login": {
@@ -28,10 +30,17 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": { "type": "string" },
-                  "password": { "type": "string" }
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
                 },
-                "required": ["username", "password"]
+                "required": [
+                  "username",
+                  "password"
+                ]
               }
             }
           }
@@ -44,35 +53,54 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "accessToken": { "type": "string" },
-                    "tokenType": { "type": "string" },
-                    "expiresIn": { "type": "integer" },
-                    "role": { "type": "string" }
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "tokenType": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "integer"
+                    },
+                    "role": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "description": "Invalid credentials" }
+          "401": {
+            "description": "Invalid credentials"
+          }
         }
       }
     },
     "/api/v1/mobile/bill": {
       "get": {
         "summary": "Get bill summary for a subscriber and month",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "subscriberNo",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "month",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "example": "2024-10" }
+            "schema": {
+              "type": "string",
+              "example": "2024-10"
+            }
           }
         ],
         "responses": {
@@ -83,46 +111,69 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "total": { "type": "string" },
-                    "paidStatus": { "type": "boolean" }
+                    "total": {
+                      "type": "string"
+                    },
+                    "paidStatus": {
+                      "type": "boolean"
+                    }
                   }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized" },
-          "404": { "description": "Bill not found" }
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Bill not found"
+          }
         }
       }
     },
     "/api/v1/mobile/bill/detailed": {
       "get": {
         "summary": "Get detailed bill for a subscriber and month",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "subscriberNo",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "month",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "example": "2024-10" }
+            "schema": {
+              "type": "string",
+              "example": "2024-10"
+            }
           },
           {
             "name": "page",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "default": 1 }
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           },
           {
             "name": "size",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "default": 10 }
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
           }
         ],
         "responses": {
@@ -133,16 +184,26 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "total": { "type": "string" },
-                    "page": { "type": "integer" },
-                    "size": { "type": "integer" },
+                    "total": {
+                      "type": "string"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "size": {
+                      "type": "integer"
+                    },
                     "details": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "description": { "type": "string" },
-                          "amount": { "type": "string" }
+                          "description": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          }
                         }
                       }
                     }
@@ -151,20 +212,28 @@
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/api/v1/bank/bill": {
       "get": {
         "summary": "Get unpaid bills for a subscriber (Bank app)",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "subscriberNo",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -177,16 +246,24 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "month": { "type": "string" },
-                      "total_amount": { "type": "string" },
-                      "paid_amount": { "type": "string" }
+                      "month": {
+                        "type": "string"
+                      },
+                      "total_amount": {
+                        "type": "string"
+                      },
+                      "paid_amount": {
+                        "type": "string"
+                      }
                     }
                   }
                 }
               }
             }
           },
-          "401": { "description": "Unauthorized" }
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
@@ -200,11 +277,21 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "subscriberNo": { "type": "string" },
-                  "month": { "type": "string" },
-                  "amount": { "type": "number" }
+                  "subscriberNo": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  }
                 },
-                "required": ["subscriberNo", "month", "amount"]
+                "required": [
+                  "subscriberNo",
+                  "month",
+                  "amount"
+                ]
               }
             }
           }
@@ -217,11 +304,21 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": { "type": "string" },
-                    "isPaid": { "type": "boolean" },
-                    "total": { "type": "number" },
-                    "paidAmount": { "type": "number" },
-                    "remaining": { "type": "number" }
+                    "status": {
+                      "type": "string"
+                    },
+                    "isPaid": {
+                      "type": "boolean"
+                    },
+                    "total": {
+                      "type": "number"
+                    },
+                    "paidAmount": {
+                      "type": "number"
+                    },
+                    "remaining": {
+                      "type": "number"
+                    }
                   }
                 }
               }
@@ -233,7 +330,11 @@
     "/api/v1/admin/bill": {
       "post": {
         "summary": "Add single bill",
-        "security": [{ "bearerAuth": [] }],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -241,49 +342,79 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "subscriberNo": { "type": "string" },
-                  "month": { "type": "string" },
-                  "totalAmount": { "type": "number" },
-                  "paidAmount": { "type": "number" }
+                  "subscriberNo": {
+                    "type": "string"
+                  },
+                  "month": {
+                    "type": "string"
+                  },
+                  "totalAmount": {
+                    "type": "number"
+                  },
+                  "paidAmount": {
+                    "type": "number"
+                  }
                 },
-                "required": ["subscriberNo", "month", "totalAmount"]
+                "required": [
+                  "subscriberNo",
+                  "month",
+                  "totalAmount"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Bill created" },
-          "401": { "description": "Unauthorized" }
+          "201": {
+            "description": "Bill created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     },
     "/api/v1/admin/bill/batch": {
       "post": {
-        "summary": "Add multiple bills in batch",
-        "security": [{ "bearerAuth": [] }],
+        "summary": "Admin - Add Bill – Batch (CSV upload)",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "subscriberNo": { "type": "string" },
-                    "month": { "type": "string" },
-                    "totalAmount": { "type": "number" },
-                    "paidAmount": { "type": "number" }
-                  },
-                  "required": ["subscriberNo", "month", "totalAmount"]
-                }
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "CSV file of Subscriber No, Months, TotalAmount[, PaidAmount]"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Bills created" },
-          "401": { "description": "Unauthorized" }
+          "201": {
+            "description": "Bills created from CSV"
+          },
+          "400": {
+            "description": "Invalid CSV file"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
         }
       }
     }

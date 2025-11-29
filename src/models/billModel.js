@@ -91,7 +91,6 @@ async function payBill(subscriberNo, month, amount) {
   };
 }
 
-
 async function getOrCreateSubscriber(subscriberNo) {
   const existing = await db.query(
     "SELECT id FROM subscribers WHERE subscriber_no = $1",
@@ -114,34 +113,48 @@ async function getOrCreateSubscriber(subscriberNo) {
   return inserted.rows[0].id;
 }
 
-async function addBill(subscriberNo, month, totalAmount) {
+/**
+ * Tek fatura ekler.
+ * paidAmount verilmezse 0 olarak kabul edilir.
+ */
+async function addBill(subscriberNo, month, totalAmount, paidAmount = 0) {
   const subscriberId = await getOrCreateSubscriber(subscriberNo);
 
   const inserted = await db.query(
     `
     INSERT INTO bills (subscriber_id, month, total_amount, paid_amount)
-    VALUES ($1, $2, $3, 0)
+    VALUES ($1, $2, $3, $4)
     RETURNING id
     `,
-    [subscriberId, month, totalAmount]
+    [subscriberId, month, totalAmount, paidAmount]
   );
 
   return inserted.rows[0].id;
 }
 
+/**
+ * JSON veya CSV'den gelen items dizisini toplu ekler.
+ * Her item: { subscriberNo, month, totalAmount, paidAmount? }
+ */
 async function addBillsBatch(items) {
   let success = 0;
   let failed = 0;
 
   for (const item of items) {
-    const { subscriberNo, month, totalAmount } = item;
+    const { subscriberNo, month, totalAmount, paidAmount } = item || {};
+
     if (!subscriberNo || !month || totalAmount == null) {
       failed++;
       continue;
     }
 
+    const initialPaid =
+      paidAmount !== undefined && paidAmount !== null
+        ? Number(paidAmount)
+        : 0;
+
     try {
-      await addBill(subscriberNo, month, totalAmount);
+      await addBill(subscriberNo, month, totalAmount, initialPaid);
       success++;
     } catch (err) {
       console.error("Batch insert error", err);
