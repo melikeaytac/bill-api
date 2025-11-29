@@ -12,8 +12,7 @@ CREATE TABLE bills (
     paid_amount NUMERIC(10,2) NOT NULL DEFAULT 0
 );
 
--- is_paid hesaplamak için view veya generated column kullanabilirsin
--- PostgreSQL 12+ ise:
+
 ALTER TABLE bills
 ADD COLUMN is_paid BOOLEAN GENERATED ALWAYS AS (paid_amount >= total_amount) STORED;
 
