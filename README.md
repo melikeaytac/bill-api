@@ -1,76 +1,74 @@
-Billing Agent
+# Billing Agent
 
-Billing Agent is a microservice-based application that enables users to query billing information using natural language.
+**Billing Agent** is a microservice-based application that enables users to query billing information using natural language.
 
-Architecture
+---
+
+## Architecture
 
 The system consists of four deployed services:
 
-Frontend – User interface
+* **Frontend** – User interface
+* **Gateway** – Request entry point
+* **Orchestrator** – Intent analysis and flow control
+* **Billing Backend API** – Billing data provider
 
-Gateway – Request entry point
+Conversation data is persisted using **Firebase Firestore**.
 
-Orchestrator – Intent analysis and flow control
+All services are deployed on **Vercel** and communicate via HTTPS.
 
-Billing Backend API – Billing data provider
+---
 
-Conversation data is persisted using Firebase Firestore.
+## Live Demo
 
-All services are deployed on Vercel and communicate via HTTPS.
+* **Demo Video**
+  [https://1drv.ms/v/c/b335192371edde15/IQA0swTqZfunTLSWGOJpQc6KAd_xtpywruP7JhSSAdLytVc?e=WXFoRW](https://1drv.ms/v/c/b335192371edde15/IQA0swTqZfunTLSWGOJpQc6KAd_xtpywruP7JhSSAdLytVc?e=WXFoRW)
 
-Live Demo Link
-https://1drv.ms/v/c/b335192371edde15/IQA0swTqZfunTLSWGOJpQc6KAd_xtpywruP7JhSSAdLytVc?e=WXFoRW 
+---
 
-Live Deployment Links
+## Live Deployment Links
 
-Frontend
-https://bill-api-frontend.vercel.app
+* **Frontend**
+  [https://bill-api-frontend.vercel.app](https://bill-api-frontend.vercel.app)
 
-Gateway
-https://bill-api-three.vercel.app
+* **Gateway**
+  [https://bill-api-three.vercel.app](https://bill-api-three.vercel.app)
 
-Orchestrator
-https://bill-api-orch.vercel.app
+* **Orchestrator**
+  [https://bill-api-orch.vercel.app](https://bill-api-orch.vercel.app)
 
-Billing Backend API
-https://bill-api-backend.vercel.app/api/v1
+* **Billing Backend API**
+  [https://bill-api-backend.vercel.app/api/v1](https://bill-api-backend.vercel.app/api/v1)
 
-Request Flow
+---
 
-User submits a natural language query.
+## Request Flow
 
-Request goes to the Gateway.
+1. User submits a natural language query.
+2. The request is sent to the Gateway.
+3. The Gateway forwards the request to the Orchestrator.
+4. The Orchestrator:
 
-Gateway forwards it to the Orchestrator.
+   * Uses **Gemini (Google AI Studio)** for intent analysis
+   * Calls the Billing Backend API when required
+5. The response is returned to the user.
+6. Messages are stored in **Firebase Firestore**.
 
-Orchestrator:
+---
 
-Uses Gemini (Google AI Studio) for intent analysis
+## Technologies
 
-Calls the Billing Backend API when required
+* **LLM**: Gemini (Google AI Studio)
+* **Backend**: Node.js (microservices)
+* **Database**: Firebase Firestore
+* **Deployment**: Vercel
 
-Response is returned to the user.
+---
 
-Messages are stored in Firebase Firestore.
+## Key Points
 
-Technologies
-
-LLM: Gemini (Google AI Studio)
-
-Backend: Node.js (microservices)
-
-Database: Firebase Firestore
-
-Deployment: Vercel
-
-Key Points
-
-Natural language billing queries
-
-Real backend API integration
-
-Persistent conversation storage
-
-No localhost usage in production
-
-Secure configuration via environment variables
+* Natural language billing queries
+* Real backend API integration
+* Persistent conversation storage
+* No localhost usage in production
+* Secure configuration via environment variables
