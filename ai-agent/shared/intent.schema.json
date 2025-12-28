@@ -1,0 +1,19 @@
+﻿{
+  "intents": [
+    {
+      "name": "query_bill",
+      "description": "Query a bill summary (month/year or billId).",
+      "parameters": ["month", "year", "billId"]
+    },
+    {
+      "name": "query_bill_detailed",
+      "description": "Query detailed bill breakdown (month/year or billId).",
+      "parameters": ["month", "year", "billId"]
+    },
+    {
+      "name": "pay_bill",
+      "description": "Pay a bill (billId + payment fields).",
+      "parameters": ["billId", "amount", "cardNumber", "cardHolder", "expiryMonth", "expiryYear", "cvv"]
+    }
+  ]
+}
