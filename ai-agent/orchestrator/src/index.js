@@ -146,5 +146,5 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 5102;
+const port = process.env.PORT ;
 app.listen(port, () => console.log(`[orchestrator] listening on :${port}`));

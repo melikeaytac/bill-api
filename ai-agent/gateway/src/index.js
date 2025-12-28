@@ -24,5 +24,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-const port = process.env.PORT || 5101;
+const port = process.env.PORT ;
 app.listen(port, () => console.log(`[gateway] listening on :${port}`));
