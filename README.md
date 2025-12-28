@@ -1,256 +1,76 @@
-# Billing API – SE4458 Midterm Project
-
-## 1. Overview
-
-This project implements a fully functional **cloud-native Billing API** based on the SE4458 Midterm specification. It provides endpoints for Mobile App, Banking App, Web Client, and Admin Portal. The system runs on **Azure App Service**, uses **Azure API Management (APIM)** as gateway, and stores data in **Azure PostgreSQL**.
-
-### Key Features
-
-* Versioned REST API (`/api/v1/...`)
-* JWT authentication (Mobile, Bank, Admin)
-* API Gateway rate-limiting (**3 calls/day per subscriber**)
-* Web Pay endpoint (no authentication)
-* Batch Bill creation (CSV upload)
-* Detailed bill queries with paging
-* Centralized backend request logging
-* Swagger / OpenAPI documentation
-* Azure-native deployment
-
----
-
-## 2. Architecture
-
-```
-[ Clients ]
-  • Mobile App
-  • Banking App
-  • Web Client (Pay Bill)
-  • Admin Panel
-           |
-           v
-[ Azure API Management Gateway ]
-  • 3/day rate limit (quota-by-key)
-  • Routing to backend
-           |
-           v
-[ Azure App Service – Node.js Backend ]
-  • Express.js API
-  • JWT auth
-  • CSV batch processor
-  • Logging middleware
-           |
-           v
-[ Azure PostgreSQL Flexible Server ]
-  • subscribers
-  • bills
-  • bill_details
-  • request_logs
-```
-
----
-
-## 3. Entity-Relationship Diagram
-
-```
-![ER Diagram](./ERdiagram.png)
-```
-
-### Database Schema Summary
-
-#### SUBSCRIBERS
-
-| Field         | Type     | Note   |
-| ------------- | -------- | ------ |
-| id            | int      | PK     |
-| subscriber_no | string   | unique |
-| created_at    | datetime |        |
-
-#### BILLS
+Billing Agent
 
-| Field         | Type    | Note                 |
-| ------------- | ------- | -------------------- |
-| id            | int     | PK                   |
-| subscriber_id | int     | FK → subscribers(id) |
-| month         | string  | YYYY-MM format       |
-| total_amount  | decimal |                      |
-| paid_amount   | decimal |                      |
+Billing Agent is a microservice-based application that enables users to query billing information using natural language.
 
-#### BILL_DETAILS
-
-| Field       | Type    | Note           |
-| ----------- | ------- | -------------- |
-| id          | int     | PK             |
-| bill_id     | int     | FK → bills(id) |
-| description | string  |                |
-| amount      | decimal |                |
-
-#### REQUEST_LOGS
+Architecture
 
-| Field               | Type     |
-| ------------------- | -------- |
-| id                  | int (PK) |
-| method              | string   |
-| path                | string   |
-| timestamp           | datetime |
-| source_ip           | string   |
-| headers             | string   |
-| request_size        | int      |
-| auth_success        | boolean  |
-| response_status     | int      |
-| response_latency_ms | int      |
-| response_size       | int      |
+The system consists of four deployed services:
 
----
+Frontend – User interface
 
-## 4. API Endpoints (Aligned with PDF Requirements)
+Gateway – Request entry point
 
-### Mobile App
+Orchestrator – Intent analysis and flow control
 
-| Method | Endpoint                       | Description              | Auth | Notes          |
-| ------ | ------------------------------ | ------------------------ | ---- | -------------- |
-| GET    | `/api/v1/mobile/bill`          | Query bill summary       | ✔    | Rate-limited   |
-| GET    | `/api/v1/mobile/bill/detailed` | Bill details with paging | ✔    | `page`, `size` |
+Billing Backend API – Billing data provider
 
-### Banking App
+Conversation data is persisted using Firebase Firestore.
 
-| Method | Endpoint            | Description       | Auth |
-| ------ | ------------------- | ----------------- | ---- |
-| GET    | `/api/v1/bank/bill` | List unpaid bills | ✔    |
+All services are deployed on Vercel and communicate via HTTPS.
 
-### Web Client
+Live Demo Link
+https://1drv.ms/v/c/b335192371edde15/IQA0swTqZfunTLSWGOJpQc6KAd_xtpywruP7JhSSAdLytVc?e=WXFoRW 
 
-| Method | Endpoint          | Description | Auth |
-| ------ | ----------------- | ----------- | ---- |
-| POST   | `/api/v1/web/pay` | Pay a bill  | ✖    |
+Live Deployment Links
 
-### Admin
+Frontend
+https://bill-api-frontend.vercel.app
 
-| Method | Endpoint                   | Description                 | Auth |
-| ------ | -------------------------- | --------------------------- | ---- |
-| POST   | `/api/v1/admin/bill`       | Create a bill               | ✔    |
-| POST   | `/api/v1/admin/bill/batch` | Batch billing (CSV or JSON) | ✔    |
+Gateway
+https://bill-api-three.vercel.app
 
----
+Orchestrator
+https://bill-api-orch.vercel.app
 
-## 5. CSV Batch Format
+Billing Backend API
+https://bill-api-backend.vercel.app/api/v1
 
-Example CSV:
+Request Flow
 
-```csv
-SubscriberNo,Month,TotalAmount,PaidAmount
-101,2025-10,250.5,0
-102,2025-11,300,100
-103,2025-12,150,0
-```
+User submits a natural language query.
 
----
+Request goes to the Gateway.
 
-## 6. Rate Limiting (API Gateway)
+Gateway forwards it to the Orchestrator.
 
-The system enforces **3 bill queries per subscriber per day**, as required.
+Orchestrator:
 
-APIM policy:
+Uses Gemini (Google AI Studio) for intent analysis
 
-```xml
-<quota-by-key calls="3"
-              renewal-period="86400"
-              counter-key="@(context.Request.Url.Query.GetValueOrDefault("subscriberNo","default"))" />
-```
+Calls the Billing Backend API when required
 
-Behavior:
+Response is returned to the user.
 
-* 4th call → `403 Out of call volume quota`
-* backend is not executed
-* request_logs does not record APIM-blocked requests
+Messages are stored in Firebase Firestore.
 
----
+Technologies
 
-## 7. Logging
+LLM: Gemini (Google AI Studio)
 
-Every backend-handled request is logged in `request_logs` table.
-Captured fields:
+Backend: Node.js (microservices)
 
-* method
-* path
-* source_ip
-* headers
-* request_size
-* auth_success
-* response_status
-* response_latency_ms
-* response_size
+Database: Firebase Firestore
 
----
+Deployment: Vercel
 
-## 8. Deployment
+Key Points
 
-### Azure App Service
+Natural language billing queries
 
-* Node.js backend
-* environment variables: `DATABASE_URL`, `JWT_SECRET`
+Real backend API integration
 
-### Azure API Management
+Persistent conversation storage
 
-* gateway routing
-* quota enforcement
-* subscription disabled
+No localhost usage in production
 
-### Azure PostgreSQL
-
-* Flexible Server
-* SSL enabled
-
-### CI/CD
-
-* GitHub Actions with OIDC
-* automatic deployment to App Service
-
----
-
-## 9. Swagger Documentation
-
-Swagger UI:
-
-```
-https://bill-api-app-12345.azurewebsites.net/docs
-```
-
-Includes:
-
-* all endpoints
-* schemas
-* examples
-* JWT bearerAuth
-* multiple server entries (App Service + APIM)
-
----
-
-## 10. Health Check
-
-```
-https://bill-api-app-12345.azurewebsites.net/health
-```
----
-
-## 11. Summary
-
-* Complete endpoint coverage
-* JWT auth
-* APIM rate limiting
-* CSV batch ingestion
-* Payment accuracy
-* Cloud deployment
-* Backend logging
-* Swagger documentation
-* Architecture + ER models
-
-System is fully compliant and production-ready.
-
----
-
-
-## 12. Live Demo
-
-```
-https://1drv.ms/v/c/b335192371edde15/IQAjL71RKpGiRqe7oiQLj3u7AeMP7D8Xf-cVyKQO44DBfuk?e=A0ib4z
-```
+Secure configuration via environment variables
