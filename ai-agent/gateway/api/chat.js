@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
 
                 message: err?.message || "unknown_error",
 
-                targetUrl: "https://bill-api-orch-fnij27o30-melike-aytacs-projects.vercel.app/chat"
+                targetUrl: "https://bill-api-three.vercel.app/chat"
 
             },
 
