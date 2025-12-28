@@ -14,6 +14,7 @@ module.exports = async (req, res) => {
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
 
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("X-Handler", "serverless");
 
     if (req.method === "OPTIONS") {
 

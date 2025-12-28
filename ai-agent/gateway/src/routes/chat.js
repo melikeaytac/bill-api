@@ -4,6 +4,7 @@ const router = express.Router();
 
 router.post("/", async (req, res, next) => {
   try {
+    res.set("X-Handler", "express");
     const { message, mode } = req.body || {};
     if (!message) return res.status(400).json({ success: false, message: "message is required" });
 
