@@ -34,7 +34,7 @@ app.use("/api/v1/web", webRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use(errorHandler);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
