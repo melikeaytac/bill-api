@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
         }
 
 
-        const base = "https://bill-api-orch-fnij27o30-melike-aytacs-projects.vercel.app";
+        const base = "https://bill-api-orch.vercel.app";
 
         console.log("İstek atılan adres:", `${base}/chat`); 
 

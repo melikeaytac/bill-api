@@ -5,7 +5,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://bill-api-frontend-91y3nyoy-melike-aytacs-projects.vercel.app",
+    origin: "https://bill-api-frontend.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
